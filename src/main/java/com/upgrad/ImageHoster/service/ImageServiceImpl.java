@@ -38,4 +38,19 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public void update(Image newImage) { imageManager.updateImage(newImage); }
+
+    @Override
+    public Image getByIdWithJoin(int id) {
+        return imageManager.getImageByIdWithJoins(id);
+    }
+
+    @Override
+    public Image getById(int id) {
+        return imageManager.getImageById(id);
+    }
+
+    @Override
+    public void deleteById(int id) {
+        imageManager.deleteImageById(id);
+    }
 }

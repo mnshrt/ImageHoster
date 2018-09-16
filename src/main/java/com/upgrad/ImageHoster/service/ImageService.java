@@ -12,4 +12,10 @@ public interface ImageService{
     void deleteByTitle(Image image);
     void save(Image image);
     void update(Image image);
+
+    Image getByIdWithJoin(int id);
+
+    Image getById(int id);
+
+    void deleteById(int id);
 }

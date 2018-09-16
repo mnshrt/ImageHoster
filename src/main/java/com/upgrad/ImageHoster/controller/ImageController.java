@@ -105,7 +105,10 @@ public class ImageController {
             Image newImage = new Image(title, description, uploadedImageData, currUser, imageTags);
             imageService.save(newImage);
 
-            return "redirect:/images/" + newImage.getTitle();
+            // return "redirect:/images/" + newImage.getTitle();
+            //return "redirect:/images/"+ newImage.getTitle() + newImage.getId();
+            return "redirect:/images/" + newImage.getId();
+
         }
     }
 
@@ -116,7 +119,7 @@ public class ImageController {
      *
      * @return view for the image that was requested
      */
-    @RequestMapping("/images/{title}")
+/*    @RequestMapping("/images/{title}")
     public String showImage(@PathVariable String title, Model model) {
         Image image = imageService.getByTitleWithJoin(title);
         image.setNumView(image.getNumView() + 1);
@@ -127,8 +130,27 @@ public class ImageController {
         model.addAttribute("tags", image.getTags());
 
         return "images/image";
-    }
+    }*/
 
+    /**
+     * This controller shows a specific image
+     *
+     * @param id    the id of the image that we want to retrieve
+     * @param model used to pass data to the view for rendering
+     * @return view for the image that was requested
+     */
+    @RequestMapping("/images/{id}")
+    public String showImage(@PathVariable int id, Model model) {
+        Image image = imageService.getByIdWithJoin(id);
+        image.setNumView(image.getNumView() + 1);
+        imageService.update(image);
+
+        model.addAttribute("user", image.getUser());
+        model.addAttribute("image", image);
+        model.addAttribute("tags", image.getTags());
+
+        return "images/image";
+    }
     /**
      * This method deletes a specific image from the database
      *
@@ -136,14 +158,14 @@ public class ImageController {
      *
      * @return redirects the user to the homepage view
      */
-    @RequestMapping("/images/{title}/delete")
+/*    @RequestMapping("/images/{title}/delete")
     public String deleteImage(@PathVariable String title) {
         Image image = imageService.getByTitle(title);
         imageService.deleteByTitle(image);
 
 
         return "redirect:/";
-    }
+    }*/
 
     /**
      * This controller method displays an image edit form, so the user
@@ -154,11 +176,47 @@ public class ImageController {
      *
      * @return the image edit form view
      */
-    @RequestMapping("/images/{title}/edit")
+/*    @RequestMapping("/images/{title}/edit")
     public String editImage(@PathVariable String title, Model model) {
         Image image = imageService.getByTitleWithJoin(title);
         String tags = convertTagsToString(image.getTags());
 
+        model.addAttribute("image", image);
+        model.addAttribute("tags", tags);
+
+        return "images/edit";
+    }*/
+
+    //new methods added
+
+    /**
+     * This method deletes a specific image from the database
+     *
+     * @param id id of the image that we want to delete
+     * @return redirects the user to the homepage view
+     */
+    @RequestMapping("/images/{id}/delete")
+    public String deleteImage(@PathVariable int id) {
+        //Image image = imageService.getById(id);
+        imageService.deleteById(id);
+
+
+        return "redirect:/";
+    }
+
+    /**
+     * This controller method displays an image edit form, so the user
+     * can update the image's description and uploaded file
+     *
+     * @param id    id of the image that we want to edit
+     * @param model used to pass data to the view for rendering
+     * @return the image edit form view
+     */
+    @RequestMapping("/images/{id}/edit")
+    public String editImage(@PathVariable int id, Model model) {
+        Image image = imageService.getByIdWithJoin(id);
+        String tags = convertTagsToString(image.getTags());
+        // model.addAttribute("current_image_id",id);
         model.addAttribute("image", image);
         model.addAttribute("tags", tags);
 
@@ -181,17 +239,22 @@ public class ImageController {
     public String edit(@RequestParam("title") String title,
                        @RequestParam("description") String description,
                        @RequestParam("file") MultipartFile file,
-                       @RequestParam("tags") String tags) throws IOException {
-        Image image = imageService.getByTitle(title);
+                       @RequestParam("tags") String tags,
+                       @RequestParam("id") int id) throws IOException {
+        Image image = imageService.getById(id);
         List<Tag> imageTags = findOrCreateTags(tags);
-        String updatedImageData = convertUploadedFileToBase64(file);
+
 
         image.setDescription(description);
-        image.setImageFile(updatedImageData);
+        //check if a new image was uploaded
+        if (!file.isEmpty()) {
+            String updatedImageData = convertUploadedFileToBase64(file);
+            image.setImageFile(updatedImageData);
+        }
         image.setTags(imageTags);
         imageService.update(image);
 
-        return "redirect:/images/" + title;
+        return "redirect:/images/" + image.getId();
     }
 
     /**

@@ -58,23 +58,38 @@ public class UserController {
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public String signUpUser(@RequestParam("username") String username,
                              @RequestParam("password") String password,
-                               HttpSession session) {
+                             Model model,
+                             HttpSession session) {
         // We'll first assign a default photo to the user
         ProfilePhoto photo = new ProfilePhoto();
         profilePhotoService.save(photo);
-
-        // it is good security practice to store the hash version of the password
-        // in the database. Therefore, if your a hacker gains access to your
-        // database, the hacker cannot see the password for your users
         String passwordHash = hashPassword(password);
         User user = new User(username, passwordHash, photo);
-        userService.register(user);
 
-        // We want to create an "currUser" attribute in the HTTP session, and store the user
-        // as the attribute's value to signify that the user has logged in
-        session.setAttribute("currUser", user);
+        //along with the parameter Model, a new check is added to verify
+        if (userService.getByName(username) != null) {
+            // if an user object with entered username already exists
+            // return an error message
+            String username_check = "username is already in use, please enter a different username";
 
-        return "redirect:/";
+            model.addAttribute("errors", user);
+            model.addAttribute("username_check", username_check);
+
+            return "users/signup";
+        } else {
+
+            // it is good security practice to store the hash version of the password
+            // in the database. Therefore, if your a hacker gains access to your
+            // database, the hacker cannot see the password for your users
+
+            userService.register(user);
+
+            // We want to create an "currUser" attribute in the HTTP session, and store the user
+            // as the attribute's value to signify that the user has logged in
+            session.setAttribute("currUser", user);
+
+            return "redirect:/";
+        }
     }
 
     /**
