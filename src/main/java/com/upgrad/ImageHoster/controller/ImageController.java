@@ -116,25 +116,7 @@ public class ImageController {
         }
     }
 
-    /**
-     * This controller shows a specific image
-     * @param title the title of the image that we want to retrieve
-     * @param model used to pass data to the view for rendering
-     *
-     * @return view for the image that was requested
-     */
-/*    @RequestMapping("/images/{title}")
-    public String showImage(@PathVariable String title, Model model) {
-        Image image = imageService.getByTitleWithJoin(title);
-        image.setNumView(image.getNumView() + 1);
-        imageService.update(image);
 
-        model.addAttribute("user", image.getUser());
-        model.addAttribute("image", image);
-        model.addAttribute("tags", image.getTags());
-
-        return "images/image";
-    }*/
 
     /**
      * This controller shows a specific image
@@ -156,41 +138,7 @@ public class ImageController {
 
         return "images/image";
     }
-    /**
-     * This method deletes a specific image from the database
-     *
-     * @param title title of the image that we want to delete
-     *
-     * @return redirects the user to the homepage view
-     */
-/*    @RequestMapping("/images/{title}/delete")
-    public String deleteImage(@PathVariable String title) {
-        Image image = imageService.getByTitle(title);
-        imageService.deleteByTitle(image);
 
-
-        return "redirect:/";
-    }*/
-
-    /**
-     * This controller method displays an image edit form, so the user
-     * can update the image's description and uploaded file
-     *
-     * @param title title of the image that we want to edit
-     * @param model used to pass data to the view for rendering
-     *
-     * @return the image edit form view
-     */
-/*    @RequestMapping("/images/{title}/edit")
-    public String editImage(@PathVariable String title, Model model) {
-        Image image = imageService.getByTitleWithJoin(title);
-        String tags = convertTagsToString(image.getTags());
-
-        model.addAttribute("image", image);
-        model.addAttribute("tags", tags);
-
-        return "images/edit";
-    }*/
 
     //new methods added
 
@@ -335,7 +283,7 @@ public class ImageController {
         return tagString;
     }
 
-    // /image/'+${image.id}+'/comments/create
+    // this method gives the functionality for comment creation on event of click of create button on image's comment section
     @RequestMapping(value = "/image/{id}/comments/create", method = RequestMethod.POST)
     public String edit(@RequestParam("comment") String commentText,
                        @RequestParam("id") int id,

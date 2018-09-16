@@ -2,6 +2,7 @@ package com.upgrad.ImageHoster.controller;
 
 
 import com.google.common.hash.Hashing;
+import com.upgrad.ImageHoster.common.Errors;
 import com.upgrad.ImageHoster.model.ProfilePhoto;
 import com.upgrad.ImageHoster.model.User;
 import com.upgrad.ImageHoster.service.ProfilePhotoService;
@@ -27,6 +28,9 @@ public class UserController {
 
     @Autowired
     private ProfilePhotoService profilePhotoService;
+    // added error messages as constants
+    private static final String LENGTH_ERROR = "needs to be 6 characters or longer";
+    private static final String INVALID_ERROR = "username has been registered";
 
     /**
      * This controller method renders the user signup view
@@ -66,15 +70,27 @@ public class UserController {
         String passwordHash = hashPassword(password);
         User user = new User(username, passwordHash, photo);
 
-        //along with the parameter Model, a new check is added to verify
-        if (userService.getByName(username) != null) {
+        Errors errors = Errors.getInstance();
+
+        model.addAttribute("errors", errors);
+        //along with the parameter Model, new checks is added to verify input username and password string's length
+        //and if username is already in use
+
+        if (username.length() < 6 || password.length() < 6) {
+            if (username.length() < 6) {
+                errors.set("username", LENGTH_ERROR);
+            }
+            if (password.length() < 6) {
+                errors.set("password", LENGTH_ERROR);
+            }
+            model.addAttribute("errors", errors);
+            return "users/signup";
+        } else if (userService.getByName(username) != null) {
             // if an user object with entered username already exists
             // return an error message
-            String username_check = "username is already in use, please enter a different username";
 
-            model.addAttribute("errors", user);
-            model.addAttribute("username_check", username_check);
-
+            errors.set("username", INVALID_ERROR);
+            model.addAttribute("errors", errors);
             return "users/signup";
         } else {
 
